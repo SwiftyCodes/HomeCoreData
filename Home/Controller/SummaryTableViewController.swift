@@ -34,13 +34,17 @@ class SummaryTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    override func viewWillAppear(_ animated: Bool) {
+        if let home = home {
+            totalSalesDollarLabel.text = "\(home.totalHomeSale(moc: managedObjectContext).currencyFormatter)"
+            numCondoSoldLabel.text = "\(home.totalSoldCondo(moc: managedObjectContext))"
+            numSFSoldLabel.text = "\(home.totalSoldSingleFamily(moc: managedObjectContext))"
+        }
     }
-
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
