@@ -94,7 +94,8 @@ class HomeListViewController: UIViewController, UITableViewDataSource, UITableVi
             }
             
         case "segueToFilter":
-            break
+            let vc = segue.destination as! FilterTableViewController
+            vc.delegate = self
             
         default:
             break
@@ -107,5 +108,11 @@ class HomeListViewController: UIViewController, UITableViewDataSource, UITableVi
             self.homes = homes
             tableView.reloadData()
         }
+    }
+}
+
+extension HomeListViewController : FilterTableViewControllerDelegate {
+    func updateHomeList(filterby: NSPredicate?, sortby: NSSortDescriptor?) {
+        
     }
 }

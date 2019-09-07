@@ -23,15 +23,15 @@ class FilterTableViewController: UITableViewController {
     @IBOutlet weak var filterByCondoCell: UITableViewCell!
     @IBOutlet weak var filterBySingleFamilyCell: UITableViewCell!
    
+    private var sortDescriptor : NSSortDescriptor?
+    private var predicate : NSPredicate?
+    
+    var delegate : FilterTableViewControllerDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -40,5 +40,43 @@ class FilterTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return section == 0 ? 3 : 2
+    }
+    
+    var didTap = false
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let selectedCell = tableView.cellForRow(at: indexPath) {
+            
+            switch selectedCell {
+                
+                //SORT
+            case sortByLocationCell:
+                setSortDescriptor(sortBy: "city", isAscendingOrder: true)
+            case sortByPriceLowHighCell:
+                setSortDescriptor(sortBy: "price", isAscendingOrder: true)
+            case sortByPriceHighLowCell:
+                setSortDescriptor(sortBy: "price", isAscendingOrder: false)
+                
+                //FILTER- PREDICATE
+            case filterByCondoCell, filterBySingleFamilyCell:
+                setFilterSearchPredicate(filterBy: (selectedCell.textLabel?.text)!)
+                
+            default:
+                break
+            }
+            
+            didTap = !didTap
+            selectedCell.accessoryType = didTap ? .checkmark : .none
+            tableView.deselectRow(at: [indexPath.row], animated: true)
+            delegate?.updateHomeList(filterby: predicate, sortby: sortDescriptor)
+        }
+        
+    }
+    
+    private func setSortDescriptor(sortBy : String, isAscendingOrder : Bool) {
+        sortDescriptor = NSSortDescriptor(key: sortBy, ascending: isAscendingOrder)
+    }
+    
+    private func setFilterSearchPredicate(filterBy : String) {
+        predicate = NSPredicate(format: "homeType = %@", filterBy)
     }
 }
