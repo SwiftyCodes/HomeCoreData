@@ -42,6 +42,10 @@ class SummaryTableViewController: UITableViewController {
             totalSalesDollarLabel.text = "\(home.totalHomeSale(moc: managedObjectContext).currencyFormatter)"
             numCondoSoldLabel.text = "\(home.totalSoldCondo(moc: managedObjectContext))"
             numSFSoldLabel.text = "\(home.totalSoldSingleFamily(moc: managedObjectContext))"
+            minPriceHomeLabel.text = "\(home.soldPrice(priceType: "min", moc: managedObjectContext).currencyFormatter)"
+            maxPriceHomeLabel.text = "\(home.soldPrice(priceType: "max", moc: managedObjectContext).currencyFormatter)"
+            avgPriceCondoLabel.text = "\(home.averagePrice(for: .Condo, moc: managedObjectContext).currencyFormatter)"
+            avgPriceSFLabel.text = "\(home.averagePrice(for: .SingleFamily, moc: managedObjectContext).currencyFormatter)"
         }
     }
     

@@ -16,6 +16,9 @@ public class Home: NSManagedObject {
     private let isForSalePredicate = NSPredicate(format: "isForSale = false")
     private let request : NSFetchRequest<Home> = Home.fetchRequest()
     
+    
+    //AGREGATED FUNCTIONS
+    
     //Total Home Sales
     func totalHomeSale(moc : NSManagedObjectContext)->Double {
         request.predicate = isForSalePredicate
@@ -38,6 +41,7 @@ public class Home: NSManagedObject {
     //Condo Count
     func totalSoldCondo(moc : NSManagedObjectContext)-> Int {
         let typPredicate = NSPredicate(format: "homeType = '\(HomeType.Condo.rawValue)'")
+        //Compound PREDICATE
         let predicate = NSCompoundPredicate(type: .and, subpredicates: [isForSalePredicate, typPredicate])
         request.resultType = .countResultType //The request returns the count of the objects that match the request.
         request.predicate = predicate
@@ -57,6 +61,53 @@ public class Home: NSManagedObject {
         
         if let count = try? moc.count(for: request), count != NSNotFound {
             return count
+        }
+        
+        return 0
+    }
+    
+    
+    //MAX & MIN Price - Value
+    func soldPrice(priceType: String, moc : NSManagedObjectContext) -> Double {
+        
+        request.predicate = isForSalePredicate
+        request.resultType = .dictionaryResultType
+        
+        let sumExpressionDescription = NSExpressionDescription()
+        sumExpressionDescription.name = "priceType" // Key for accessing the total sales as we have used a dictinory
+        //Build Expression
+        sumExpressionDescription.expression = NSExpression(forFunction: "\(priceType):", arguments: [NSExpression(forKeyPath: "price")]) // Price type is min or max
+        //What we want the value as - here its DOUBLE
+        sumExpressionDescription.expressionResultType = .doubleAttributeType
+        //QUERY
+        request.propertiesToFetch = [sumExpressionDescription]
+        
+        if let results = try? moc.fetch(request as! NSFetchRequest<NSFetchRequestResult>) as? [NSDictionary], let homePrice = results?.first?["priceType"] as? Double {
+            return homePrice
+        }
+        
+        return 0
+    }
+    
+    //Avg Price
+    func averagePrice(for homeType: HomeType, moc : NSManagedObjectContext) -> Double {
+        
+        let typPredicate = NSPredicate(format: "homeType = %@", homeType.rawValue)
+        let predicate = NSCompoundPredicate(type: .and, subpredicates: [isForSalePredicate, typPredicate])
+        request.predicate = predicate
+        request.resultType = .dictionaryResultType
+        
+        let sumExpressionDescription = NSExpressionDescription()
+        sumExpressionDescription.name = homeType.rawValue // Key for accessing the total sales as we have used a dictinory
+        //Build Expression
+        sumExpressionDescription.expression = NSExpression(forFunction: "average:", arguments: [NSExpression(forKeyPath: "price")]) // Price type is min or max
+        //What we want the value as - here its DOUBLE
+        sumExpressionDescription.expressionResultType = .doubleAttributeType
+        //QUERY
+        request.propertiesToFetch = [sumExpressionDescription]
+        
+        if let results = try? moc.fetch(request as! NSFetchRequest<NSFetchRequestResult>) as? [NSDictionary], let homePrice = results?.first?[homeType.rawValue] as? Double {
+            return homePrice
         }
         
         return 0
