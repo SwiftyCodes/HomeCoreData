@@ -28,9 +28,11 @@ class HomeListViewController: UIViewController, UITableViewDataSource, UITableVi
     private var selectedHome: Home?
     private var home: Home?
     private var isForSale: Bool = true
+ 
+    private var request: NSFetchRequest<Home> = Home.fetchRequest()
+   
     private var sortDescriptor = [NSSortDescriptor]()
     private var searchPredicate: NSPredicate?
-    private var request: NSFetchRequest<Home> = Home.fetchRequest()
     
     // MARK: Initialization
     
@@ -94,6 +96,11 @@ class HomeListViewController: UIViewController, UITableViewDataSource, UITableVi
             }
             
         case "segueToFilter":
+            
+            //Rest values
+            sortDescriptor = []
+            searchPredicate = nil
+            
             let vc = segue.destination as! FilterTableViewController
             vc.delegate = self
             
@@ -104,7 +111,7 @@ class HomeListViewController: UIViewController, UITableViewDataSource, UITableVi
     
     
     private func loadData() {
-        if let homes = home?.getHomeByStatus(isForSale: isForSale, moc: managedObjectContext) {
+        if let homes = home?.getHomeByStatus(isForSale: isForSale, moc: managedObjectContext, filterBy: searchPredicate, sortBy: sortDescriptor) {
             self.homes = homes
             tableView.reloadData()
         }
@@ -113,6 +120,12 @@ class HomeListViewController: UIViewController, UITableViewDataSource, UITableVi
 
 extension HomeListViewController : FilterTableViewControllerDelegate {
     func updateHomeList(filterby: NSPredicate?, sortby: NSSortDescriptor?) {
+        if let filter = filterby {
+            searchPredicate = filter
+        }
         
+        if let sort = sortby {
+            sortDescriptor.append(sort)
+        }
     }
 }

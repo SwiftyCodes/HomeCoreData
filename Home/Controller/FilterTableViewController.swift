@@ -42,7 +42,7 @@ class FilterTableViewController: UITableViewController {
         return section == 0 ? 3 : 2
     }
     
-    var didTap = false
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let selectedCell = tableView.cellForRow(at: indexPath) {
             
@@ -51,6 +51,7 @@ class FilterTableViewController: UITableViewController {
                 //SORT
             case sortByLocationCell:
                 setSortDescriptor(sortBy: "city", isAscendingOrder: true)
+                
             case sortByPriceLowHighCell:
                 setSortDescriptor(sortBy: "price", isAscendingOrder: true)
             case sortByPriceHighLowCell:
@@ -63,10 +64,7 @@ class FilterTableViewController: UITableViewController {
             default:
                 break
             }
-            
-            didTap = !didTap
-            selectedCell.accessoryType = didTap ? .checkmark : .none
-            tableView.deselectRow(at: [indexPath.row], animated: true)
+            selectedCell.accessoryType = .checkmark
             delegate?.updateHomeList(filterby: predicate, sortby: sortDescriptor)
         }
         
